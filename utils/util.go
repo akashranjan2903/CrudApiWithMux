@@ -20,7 +20,9 @@ func ResponseWriter(w http.ResponseWriter, status int, data []byte, message stri
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	w.Write([]byte(message))
-	w.Write(data)
+	if len(data) > 0 {
+		w.Write(data)
+	}
 }
 func Checkmethod(method string, checkmethod httpMethod) bool {
 	return method == string(checkmethod)
@@ -28,10 +30,21 @@ func Checkmethod(method string, checkmethod httpMethod) bool {
 
 func Getidfromurl(url string) int {
 	idstr := strings.Split(url, "/")
-	id, e := strconv.Atoi(idstr[len(idstr)-1])
+	str := idstr[len(idstr)-1]
+	str = strings.Replace(str, "{", "", -1)
+	str = strings.Replace(str, "}", "", -1)
+	id, e := strconv.Atoi(str)
 	if e != nil {
 		log.Fatal("Conversion of string into int failed")
 		panic(e)
 	}
 	return id
+}
+
+func Errorhandlefordataconversion(err error) {
+
+	if err != nil {
+		log.Fatal("error found in Marshaling the data in json")
+		panic(err)
+	}
 }
